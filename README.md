@@ -4,7 +4,7 @@ Portable, secure by default cryptography.
 
 ## Message authentication
 
-Using HMAC-SHA1.
+Using HMAC-SHA256.
 
 ### Signing
 
@@ -36,7 +36,7 @@ decrypt(encypted message, key) -> message
 
 ## Stream encryption
 
-Using AES-128-GCM for IV negotiation and AES-128-CTR for stream encryption.
+Using AES-128-GCM for IV hand over and AES-128-CTR for stream encryption.
 
 ### Encrypting
 

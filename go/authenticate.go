@@ -8,7 +8,7 @@ import (
 	"hash"
 	"io"
 
-	_ "crypto/sha1" // Load SHA-1
+	_ "crypto/sha256" // Load SHA-256
 )
 
 // Authentication errors.
@@ -18,7 +18,7 @@ var (
 )
 
 var (
-	authenticationHash = crypto.SHA1
+	authenticationHash = crypto.SHA256
 	authenticationSize = authenticationHash.Size()
 )
 

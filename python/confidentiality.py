@@ -1,6 +1,6 @@
 import struct
 from Crypto.Cipher import AES
-from Crypto.Hash import HMAC, SHA1
+from Crypto.Hash import HMAC, SHA256
 from Crypto.Random import get_random_bytes
 from Crypto.Util import Counter
 from Crypto.Util.number import bytes_to_long
@@ -114,18 +114,18 @@ def constant_time_compare(a, b):
 def sign(message, key):
     '''Sign a message.'''
 
-    hmac = HMAC.new(key, msg=message, digestmod=SHA1)
+    hmac = HMAC.new(key, msg=message, digestmod=SHA256)
     return message + hmac.digest()
 
 
 def verify(message, key):
     '''Verify a signed message.'''
 
-    if len(message) < 20:
+    if len(message) < 32:
         raise ValueError('Message contains no signature')
 
-    message, digest = message[:-20], message[-20:]
-    hmac = HMAC.new(key, msg=message, digestmod=SHA1)
+    message, digest = message[:-32], message[-32:]
+    hmac = HMAC.new(key, msg=message, digestmod=SHA256)
     
     if not constant_time_compare(hmac.digest(), digest):
         raise ValueError('Signature verification failed')
