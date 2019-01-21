@@ -88,10 +88,10 @@ func Secure(rw io.ReadWriter) io.ReadWriter {
 		return &secured{err: err}
 	}
 
-	return &secured{
-		r: Decrypter(rw, shared),
-		w: Encrypter(rw, shared),
-	}
+	// First start an encrypter, because Decrypter will block on reading from rw.
+	w := Encrypter(rw, shared)
+	r := Decrypter(rw, shared)
+	return &secured{w: w, r: r}
 }
 
 type secured struct {

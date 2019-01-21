@@ -23,26 +23,31 @@ type ellipticPrivateKey struct {
 // Exchange a 256-bit session key.
 func Exchange(rw io.ReadWriter) (key []byte, err error) {
 	var (
-		d              []byte
-		localX, localY *big.Int
-		peersX, peersY *big.Int
+		d    []byte
+		x, y *big.Int
 	)
-	if d, localX, localY, err = elliptic.GenerateKey(exchangeCurve, randomReader); err != nil {
+	if d, x, y, err = elliptic.GenerateKey(exchangeCurve, randomReader); err != nil {
 		return
 	}
-	if err = writeEllipticPublicKey(rw, exchangeCurve, localX, localY); err != nil {
+	return exchangeSessionKey(rw, d, x, y)
+}
+
+func exchangeSessionKey(rw io.ReadWriter, d []byte, x, y *big.Int) (key []byte, err error) {
+	if err = writeEllipticPublicKey(rw, exchangeCurve, x, y); err != nil {
 		return
 	}
+
+	var peersX, peersY, sharedX *big.Int
 	if peersX, peersY, err = readEllipticPublicKey(rw, exchangeCurve); err != nil {
 		return
 	}
 
 	// Compute the shared session key
-	x, _ := exchangeCurve.ScalarMult(peersX, peersY, d)
+	sharedX, _ = exchangeCurve.ScalarMult(peersX, peersY, d)
 
 	// 256-bit key from the scalar multiplication product
 	key = make([]byte, 32)
-	copy(key, x.Bytes())
+	copy(key, sharedX.Bytes())
 
 	return
 }

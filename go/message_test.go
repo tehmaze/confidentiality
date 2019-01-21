@@ -2,11 +2,16 @@ package confidentiality
 
 import (
 	"bytes"
+	"crypto/rand"
 	"encoding/hex"
 	"testing"
 )
 
 func TestMessage(t *testing.T) {
+	defer func() {
+		randomReader = rand.Reader
+	}()
+
 	for _, fields := range loadTestVectors(t, "message_test.txt", 5) {
 		t.Run(fields[0], func(t *testing.T) {
 			var (
