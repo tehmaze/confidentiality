@@ -18,6 +18,17 @@ sign(message, key) -> signed message
 verify(signed message, key) -> [error]
 ```
 
+## Key exchange
+
+Using elliptive curve Diffie-Helman key exchanged, based on the NIST P-256
+curve.
+
+### Shared key
+
+```
+exchange(readable & writable stream) -> key
+```
+
 ## Message encryption
 
 Using AES-128-GCM.
@@ -41,11 +52,11 @@ Using AES-128-GCM for IV hand over and AES-128-CTR for stream encryption.
 ### Encrypting
 
 ```
-encrypt(stream, key) -> stream
+encrypter(writable stream, key) -> writable stream
 ```
 
 ### Decrypting
 
 ```
-decrypt(stream, key) -> stream
+decrypter(readable stream, key) -> readable stream
 ```
