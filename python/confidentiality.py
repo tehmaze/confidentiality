@@ -28,7 +28,7 @@ def _get_random_bytes(n):
 
 
 def exchange(stream):
-    '''Exchange a shared key.'''
+    '''Exchange an ephemeral session key.'''
 
     # Generate an emphemeral ECDSA NIST P-256 private key
     private_key = SigningKey.generate(curve=NIST256p).privkey
@@ -179,9 +179,9 @@ class Secure:
     '''Secure a stream with an ephemeral session key.'''
 
     def __init__(self, stream):
-        shared = exchange(stream)
-        self.reader = Decrypter(stream, key)
-        self.writer = Encrypter(stream, key)
+        session_key = exchange(stream)
+        self.reader = Decrypter(stream, session_key)
+        self.writer = Encrypter(stream, session_key)
 
     def read(self, size=None):
         return self.reader.read(size)
