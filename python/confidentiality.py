@@ -1,10 +1,21 @@
 import struct
+import time
+import warnings
+
 from Crypto.Cipher import AES
 from Crypto.Hash import HMAC, SHA256
+from Crypto.PublicKey import ECC
 from Crypto.Random import get_random_bytes
 from Crypto.Util import Counter
-from Crypto.Util.number import bytes_to_long
+from Crypto.Util.number import bytes_to_long, long_to_bytes
 
+from ecdsa import SigningKey, VerifyingKey, NIST256p
+from ecdsa.ellipticcurve import Point
+
+_ECC_CURVE = 'P-256'
+_ECC_CURVE_POINT_BYTES = 32
+_ECC_PRIME = 0x115792089210356248762697446949407573530086143415290314195533631308867097853951
+_ECC_LINEAR = 0x03
 _AES_BLOCK_SIZE = 16
 _GCM_NONCE_SIZE = 12
 _GCM_TAG_SIZE = 16
@@ -16,8 +27,69 @@ def _get_random_bytes(n):
     return get_random_bytes(n)
 
 
+def exchange(stream):
+    '''Exchange a shared key.'''
+
+    # Generate an emphemeral ECDSA NIST P-256 private key
+    private_key = SigningKey.generate(curve=NIST256p).privkey
+    public_key = private_key.public_key
+
+    # Write the public part on the wire
+    _write_ecc_public_key(stream, public_key)
+
+    # Read peer's public key from the wire
+    peers_public_key = _read_ecc_public_key(stream)
+
+    # Compute the scalar product of our private key with peer's
+    shared_point = private_key.secret_multiplier * peers_public_key
+
+    # public key as our shared key.
+    return long_to_bytes(shared_point.x())
+
+
+def _read_ecc_public_key(stream):
+    bytes_length = 1 + 2 * _ECC_CURVE_POINT_BYTES
+
+    block = b''
+    while len(block) == 0:
+        block += stream.read(bytes_length)
+        if len(block) == 0:
+            time.sleep(0.1)
+
+    return _unmarshal_ecc_public_key(block)
+
+
+def _write_ecc_public_key(stream, key):
+    stream.write(_marshal_ecc_public_key(key))
+
+
+def _marshal_ecc_public_key(key):
+    '''Convert a point into the uncompressed form specified in section 4.3.6 of ANSI X9.62.'''
+    marshaled = bytearray([4])  # Uncompressed
+    marshaled.extend(bytearray(long_to_bytes(key.point.x())))
+    marshaled.extend(bytearray(long_to_bytes(key.point.y())))
+    return marshaled
+
+
+def _unmarshal_ecc_public_key(marshaled):
+    if marshaled[0] != 4:
+        raise ValueError('Expected uncompressed ECC point')
+
+    if len(marshaled[1:]) != 2 * _ECC_CURVE_POINT_BYTES:
+        raise ValueError('Expected {} ECC point bytes, got {}'.format(
+                    2 * _ECC_CURVE_POINT_BYTES,
+                    len(marshaled[1:])))
+
+    marshaled = marshaled[1:]
+    return Point(
+        curve=NIST256p.curve,
+        x=bytes_to_long(marshaled[:_ECC_CURVE_POINT_BYTES]),
+        y=bytes_to_long(marshaled[_ECC_CURVE_POINT_BYTES:]),
+    )
+
+
 def encrypt(message, key):
-    '''encrypt a message.'''
+    '''Encrypt a message.'''
 
     # Generate a random nonce.
     nonce = _get_random_bytes(_GCM_NONCE_SIZE)
@@ -32,7 +104,7 @@ def encrypt(message, key):
 
 
 def decrypt(message, key):
-    '''decrypt a message.'''
+    '''Decrypt a message.'''
 
     # Split the nonce, message and ciphertext
     nonce, remainder = message[:_GCM_NONCE_SIZE], message[_GCM_NONCE_SIZE:]

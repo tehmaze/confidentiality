@@ -2,7 +2,11 @@ package confidentiality
 
 import (
 	"bytes"
+	"crypto/elliptic"
+	"crypto/rand"
+	"encoding/hex"
 	"io"
+	"math/big"
 	"net"
 	"sync"
 	"testing"
@@ -69,4 +73,48 @@ func testExchange(out chan<- []byte, rw io.ReadWriter, wait *sync.WaitGroup) {
 	}
 
 	out <- k
+}
+
+func TestExchangeVectors(t *testing.T) {
+	t.Helper()
+	for _, vector := range loadTestVectors(t, "exchange_test.txt", 9) {
+		t.Run("", func(t *testing.T) {
+			testExchangeVectors(t, vector)
+		})
+	}
+}
+
+func testExchangeVectors(t *testing.T, vectors []string) {
+	t.Helper()
+
+	defer func() {
+		randomReader = rand.Reader
+	}()
+
+	randomVector, _ := hex.DecodeString(vectors[0])
+	randomReader = bytes.NewBuffer(randomVector)
+
+	var (
+		localX, localY *big.Int
+		buffer         = new(bytes.Buffer)
+		key            []byte
+		err            error
+	)
+	if _, localX, localY, err = elliptic.GenerateKey(exchangeCurve, randomReader); err != nil {
+		t.Fatal(err)
+	}
+	if err = writeEllipticPublicKey(buffer, exchangeCurve, localX, localY); err != nil {
+		return
+	}
+	if key, err = Exchange(buffer); err != nil {
+		return
+	} else if len(key) < 32 {
+		t.Fatalf("expected 256-bit key, got %d-bit", len(key)<<3)
+	}
+
+	wantedKey, _ := hex.DecodeString(vectors[8])
+	if !bytes.Equal(key, wantedKey) {
+		t.Fatalf("expected key %x, got %x", wantedKey, key)
+	}
+
 }
