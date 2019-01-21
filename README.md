@@ -20,7 +20,7 @@ verify(signed message, key) -> [error]
 
 ## Key exchange
 
-Using elliptive curve Diffie-Helman key exchanged, based on the NIST P-256
+Using Elliptive Curve Diffie-Helman (ECDH) key exchanged, based on the NIST P-256
 curve.
 
 ### Shared key
@@ -59,4 +59,13 @@ encrypter(writable stream, key) -> writable stream
 
 ```
 decrypter(readable stream, key) -> readable stream
+```
+
+### Secure a stream
+
+Performs a key exchange and switches to encrypted/decrypted streams for
+writing/reading to/from the stream.
+
+```
+secure(readable & writable stream) -> readable & writable stream
 ```

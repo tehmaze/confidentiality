@@ -79,3 +79,37 @@ func (s streamError) Read(_ []byte) (int, error) {
 func (s streamError) Write(_ []byte) (int, error) {
 	return 0, s.err
 }
+
+// Secure exchanges a key over the passed ReadWriter and returns a ReadWriter that
+// transparently encrypts and decrypts writes and reads.
+func Secure(rw io.ReadWriter) io.ReadWriter {
+	shared, err := Exchange(rw)
+	if err != nil {
+		return &secured{err: err}
+	}
+
+	return &secured{
+		r: Decrypter(rw, shared),
+		w: Encrypter(rw, shared),
+	}
+}
+
+type secured struct {
+	r   io.Reader
+	w   io.Writer
+	err error
+}
+
+func (s *secured) Read(p []byte) (int, error) {
+	if s.err != nil {
+		return 0, s.err
+	}
+	return s.r.Read(p)
+}
+
+func (s *secured) Write(p []byte) (int, error) {
+	if s.err != nil {
+		return 0, s.err
+	}
+	return s.w.Write(p)
+}

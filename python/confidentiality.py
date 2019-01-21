@@ -117,6 +117,8 @@ def decrypt(message, key):
 
 
 class Encrypter:
+    '''Encrypt a stream.'''
+
     def __init__(self, stream, key):
         self.stream = stream
 
@@ -135,11 +137,16 @@ class Encrypter:
         ctr = Counter.new(128, initial_value=bytes_to_long(iv))
         self.cipher = AES.new(key, AES.MODE_CTR, counter=ctr)
 
+    def send(self, data):
+        self.stream.send(self.cipher.encrypt(data))
+
     def write(self, data):
         self.stream.write(self.cipher.encrypt(data))
 
 
 class Decrypter:
+    '''Decrypt a stream.'''
+
     def __init__(self, stream, key):
         self.stream = stream
 
@@ -163,8 +170,33 @@ class Decrypter:
         encrypted = self.stream.read(size)
         return self.cipher.decrypt(encrypted)
 
+    def recv(self, size=None):
+        encrypted = self.stream.recv(size)
+        return self.cipher.decrypt(encrypted)
 
-def constant_time_compare(a, b):
+
+class Secure:
+    '''Secure a stream with an ephemeral session key.'''
+
+    def __init__(self, stream):
+        shared = exchange(stream)
+        self.reader = Decrypter(stream, key)
+        self.writer = Encrypter(stream, key)
+
+    def read(self, size=None):
+        return self.reader.read(size)
+
+    def recv(self, size=None):
+        return self.reader.recv(size)
+
+    def send(self, data):
+        self.writer.send(data)
+
+    def write(self, data):
+        self.writer.write(data)
+
+
+def _constant_time_compare(a, b):
     '''Compare a and b in constant time.'''
 
     for t in (bytes, str, bytearray):
@@ -199,7 +231,7 @@ def verify(message, key):
     message, digest = message[:-32], message[-32:]
     hmac = HMAC.new(key, msg=message, digestmod=SHA256)
     
-    if not constant_time_compare(hmac.digest(), digest):
+    if not _constant_time_compare(hmac.digest(), digest):
         raise ValueError('Signature verification failed')
 
     return True
