@@ -1,9 +1,14 @@
 matrix:
   include:
     - language: go
-      go:
-        - '1.10.x'
-        - '1.11.x'
+      go: '1.10.x'
+      install:
+        - go get -u -v ./go/...
+      script:
+        - go test -v ./go/...
+
+    - language: go
+      go: '1.11.x'
       install:
         - go get -u -v ./go/...
       script:
@@ -61,6 +66,7 @@ matrix:
         - make -C ruby test
 
     - language: ruby
+      rvm: '2.5.3'
       install:
         - make -C ruby install-test-deps
       script:
