@@ -21,6 +21,7 @@ matrix:
         - 3.4
       before_script:
         - cd python
+        - python3 -m pip install --upgrade pip
         - make install-test-deps
       script:
         - make test
