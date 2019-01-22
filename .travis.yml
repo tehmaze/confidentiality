@@ -8,6 +8,8 @@ matrix:
         - make test
 
     - language: node_js
+      node_js:
+        - '11'
       before_script:
         - cd javascript
         - make install-test-deps
