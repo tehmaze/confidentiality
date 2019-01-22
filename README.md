@@ -14,6 +14,8 @@ implementations* and only exists as a supplementary means of offering
 cryptographic primitives. Make sure you understand the limitations of each
 function before you use them.
 
+**Project state**: Unstable, we're still working on the API and used algorithms.
+
 ## Supported languages
 
 | Language     | Version         | Remarks                           |
@@ -42,6 +44,19 @@ function before you use them.
 [GCM]:        https://en.wikipedia.org/wiki/Galois/Counter_Mode
 [CTR]:        https://en.wikipedia.org/wiki/Block_cipher_mode_of_operation#Counter_(CTR)
 [NIST P-256]: https://en.wikipedia.org/wiki/Elliptic-curve_cryptography#Security
+
+## Backward compatibility
+
+Confidentiality will be released using [semantic versioning]. Releases on the
+a new major release may introduce algorithm changes that are not compatible
+with releases on previous major releases. New major versions *may* be compatible
+with older releases, unless there are security concerns for supporting older
+algorithms.
+
+The `0` major release has no promise of backward compatibility and are used to
+field test algorithm changes.
+
+[semantic versioning]: https://semver.org/
 
 ## Message authentication
 
