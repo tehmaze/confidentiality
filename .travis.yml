@@ -1,0 +1,31 @@
+matrix:
+  include:
+    - language: go
+      before_script:
+        - cd go
+        - make install-test-deps
+      script:
+        - make test
+
+    - language: node_js
+      before_script:
+        - cd javascript
+        - make install-test-deps
+      script:
+        - make test
+
+    - language: python
+      python:
+        - 3.4
+      before_script:
+        - cd python
+        - make install-test-deps
+      script:
+        - make test
+    
+    - language: ruby
+      before_script:
+        - cd ruby
+        - make install-test-deps
+      script:
+        - make test

@@ -11,7 +11,7 @@ import (
 var curve = elliptic.P256()
 
 func main() {
-	fmt.Println("# r1:x1:y1:d1:r2:x2:y2:d2:shared")
+	fmt.Println("# r1:d1:x1:y1:d2:r2:x2:y2:shared")
 
 	for i := 0; i < 6; i++ {
 		generate(i)
@@ -22,7 +22,13 @@ func generate(i int) {
 	// Each P-256 needs 32 bytes of random
 	var random = make([]byte, 64)
 
-	if i > 0 {
+	switch i {
+	case 0:
+	case 1:
+		for i := range random {
+			random[i] = 0xff
+		}
+	default:
 		if _, err := io.ReadFull(rand.Reader, random); err != nil {
 			panic(err)
 		}
