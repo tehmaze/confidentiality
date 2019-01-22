@@ -5,10 +5,10 @@ PYTHON ?= python3
 all:
 
 install-deps:
-	$(PYTHON) -m pip install -r requirements.txt
+	$(PYTHON) -m pip install -U -r requirements.txt
 
 install-test-deps: install-deps
-	$(PYTHON) -m pip install -r requirements-test.txt
+	$(PYTHON) -m pip install -U -r requirements-test.txt
 
 test:
 	PYTHONPATH=. $(PYTHON) -m pytest -v
