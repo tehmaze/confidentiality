@@ -1,4 +1,11 @@
-# confidentiality
+# Confidentiality [![License: MIT][license_img]][license_url] [![Build Status][build_img]][build_url] [![Go Documentation][godoc_img]][godoc_url]
+
+[license_img]: https://img.shields.io/badge/License-MIT-yellow.svg
+[license_url]: https://opensource.org/licenses/MIT
+[build_img]: https://travis-ci.org/tehmaze/confidentiality.svg?branch=master
+[build_url]: https://travis-ci.org/tehmaze/confidentiality
+[godoc_img]: https://godoc.org/github.com/tehmaze/confidentiality/go?status.svg
+[godoc_url]: https://godoc.org/github.com/tehmaze/confidentiality/go
 
 Portable, secure by default cryptography.
 
