@@ -15,7 +15,7 @@ func Decrypter(r io.Reader, key []byte) io.Reader {
 	}
 
 	var aead cipher.AEAD
-	if aead, err = cipher.NewGCMWithTagSize(block, 16); err != nil {
+	if aead, err = cipher.NewGCM(block); err != nil {
 		return streamError{err}
 	}
 
@@ -59,7 +59,7 @@ func Encrypter(w io.Writer, key []byte) io.Writer {
 	}
 
 	// Encrypt IV using the nonce and write it to the stream
-	aead, err := cipher.NewGCMWithTagSize(block, gcmTagSize)
+	aead, err := cipher.NewGCM(block)
 	if err != nil {
 		return streamError{err}
 	}

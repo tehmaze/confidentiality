@@ -48,5 +48,5 @@ func newGCM(key []byte) (cipher.AEAD, error) {
 		return nil, err
 	}
 
-	return cipher.NewGCMWithTagSize(block, gcmTagSize)
+	return cipher.NewGCM(block)
 }
