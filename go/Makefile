@@ -2,9 +2,8 @@
 
 all:
 
-install-test-deps: .dummy
+install-test-deps:
+	go get -v -u
 
 test:
 	go test -v
-
-.dummy:
