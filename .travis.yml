@@ -20,20 +20,20 @@ matrix:
         - make test
 
     - language: python
-      python:
-        - '3.4'
-        - '3.5'
-        - '3.6'
-        - '3.7'
+      include:
+        - python: '3.4'
+        - python: '3.5'
+        - python: '3.6'
+        - python: '3.7'
       before_script:
         - cd python
-        - python3 -m pip install --upgrade pip
-        - make install-test-deps
+        - python -m pip install --upgrade pip
+        - make install-test-deps PYTHON=python
       script:
-        - make test
+        - make test PYTHON=python
     
     - language: ruby
-      ruby:
+      rvm:
         - 2.4.1
         - 2.5.3
         - 2.6.0
