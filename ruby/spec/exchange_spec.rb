@@ -8,18 +8,14 @@ RSpec.describe Confidentiality, "message" do
     next if line.start_with? '#'
     
     part = line.split(':')
-    r1, d1, x1, y1, r2, d2, x2, y2, shared = part.map do |hex|
+    r1, k1, p1, r2, k2, p2, shared = part.map do |hex|
       hex_to_bin(hex)
     end
 
-    k1 = OpenSSL::PKey::EC.new('prime256v1')
-    k1.private_key = OpenSSL::BN.new(bin_to_hex(d1), 16)
-    k1.public_key = OpenSSL::PKey::EC::Group.new('prime256v1').generator.mul(k1.private_key)
-    
     describe ".exchange" do
       # Mock OpenSSL::PKey::EC.generate to return our loaded private key
       before { 
-        allow(OpenSSL::PKey::EC).to receive(:generate).and_return(k1)
+        allow(X25519::Scalar).to receive(:generate).and_return(X25519::Scalar.new(k1))
       }
         
       it "returns shared key #{bin_to_hex(shared)}" do
@@ -44,14 +40,14 @@ RSpec.describe Confidentiality, "message" do
           end
         end
 
-        # Mock that peer sent the public key on (x2, y2)
-        socket = Stream.new("\x04" + x2 + y2)
+        # Mock that peer sent the public key
+        socket = Stream.new("\x19" + p2)
 
         # Make the exchange
         result = Confidentiality.exchange(socket)
 
         # Match written data in the exchange with what we expected
-        expect(socket.written()).to eq("\x04" + x1 + y1)
+        expect(socket.written()).to eq("\x19" + p1)
 
         # Match generated shared key with what we expected
         expect(result).to be_an_instance_of(String).and eq(shared)

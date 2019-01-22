@@ -1,13 +1,15 @@
-var lib;
+var lib, toBase64;
 
 if (typeof require !== 'undefined') {
   lib = require('./confidentiality');
+  toBase64 = require('btoa');
 } else if (typeof window !== 'undefined') {
   lib = window.Confidentiality;
+  toBase64 = window.btoa;
 }
 
 // Clear logger element if it exists
-(function() {
+(function () {
   if (typeof document === 'undefined') return;
   var element = document.getElementById('log');
   if (element) {
@@ -20,8 +22,8 @@ function logger() {
     if (typeof item === 'string') {
       return item;
     } else if (item instanceof Uint8Array) {
-      if (typeof btoa === 'function') {
-        return btoa(String.fromCharCode.apply(null, item));
+      if (typeof toBase64 === 'function') {
+        return toBase64(String.fromCharCode.apply(null, item));
       }
       return String.fromCharCode.apply(null, item);
     }
@@ -85,5 +87,29 @@ function testAuthentication() {
   });
 }
 
+function testExchange() {
+  var out = new Uint8Array(33), outOffset = 0,
+    buf = new Uint8Array(33), bufOffset = 0,
+    socket = {
+      send: function (data) {
+        out.set(data, outOffset);
+        outOffset += data.length;
+      },
+
+      addEventListener: function(eventType, fn) {
+        if (eventType === 'message') {
+          fn({ data: 'GUgM4W7ghzsC9r72MMH4WEUhVi1xcBt/ucmhYToOqsJX'});
+        }
+      },
+      removeEventListener: function() {}
+    };
+
+  logger("exchange");
+  lib.exchange(socket).then(function(shared) {
+    logger('exchange shared key:', shared.constructor.name, shared);
+  });
+}
+
 testMessage();
 testAuthentication();
+testExchange();

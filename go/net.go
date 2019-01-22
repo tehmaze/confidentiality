@@ -1,9 +1,7 @@
 package confidentiality
 
 import (
-	"crypto/elliptic"
 	"io"
-	"math/big"
 	"net"
 	"time"
 )
@@ -58,8 +56,7 @@ func DialTimeout(network, address string, timeout time.Duration) (net.Conn, erro
 type netListener struct {
 	net.Listener
 
-	d    []byte
-	x, y *big.Int
+	publicKey, privateKey *[32]byte
 }
 
 // Accept waits for and returns the next connection to the listener, negotiating
@@ -70,7 +67,7 @@ func (l *netListener) Accept() (net.Conn, error) {
 		return nil, err
 	}
 
-	k, err := exchangeSessionKey(c, l.d, l.x, l.y)
+	k, err := exchangeSessionKey(c, l.privateKey, l.publicKey)
 	if err != nil {
 		return nil, err
 	}
@@ -90,7 +87,7 @@ func Listen(network, address string) (net.Listener, error) {
 	}
 
 	s := &netListener{Listener: l}
-	if s.d, s.x, s.y, err = elliptic.GenerateKey(exchangeCurve, randomReader); err != nil {
+	if s.privateKey, s.publicKey, err = generateKey(randomReader); err != nil {
 		return nil, err
 	}
 

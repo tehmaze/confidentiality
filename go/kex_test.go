@@ -2,11 +2,9 @@ package confidentiality
 
 import (
 	"bytes"
-	"crypto/elliptic"
 	"crypto/rand"
 	"encoding/hex"
 	"io"
-	"math/big"
 	"net"
 	"sync"
 	"testing"
@@ -77,7 +75,7 @@ func testExchange(out chan<- []byte, rw io.ReadWriter, wait *sync.WaitGroup) {
 
 func TestExchangeVectors(t *testing.T) {
 	t.Helper()
-	for _, vector := range loadTestVectors(t, "exchange_test.txt", 9) {
+	for _, vector := range loadTestVectors(t, "exchange_test.txt", 7) {
 		t.Run("", func(t *testing.T) {
 			testExchangeVectors(t, vector)
 		})
@@ -95,15 +93,15 @@ func testExchangeVectors(t *testing.T, vectors []string) {
 	randomReader = bytes.NewBuffer(randomVector)
 
 	var (
-		localX, localY *big.Int
-		buffer         = new(bytes.Buffer)
-		key            []byte
-		err            error
+		publicKey *[32]byte
+		buffer    = new(bytes.Buffer)
+		key       []byte
+		err       error
 	)
-	if _, localX, localY, err = elliptic.GenerateKey(exchangeCurve, randomReader); err != nil {
+	if _, publicKey, err = generateKey(randomReader); err != nil {
 		t.Fatal(err)
 	}
-	if err = writeEllipticPublicKey(buffer, exchangeCurve, localX, localY); err != nil {
+	if err = writePublicKey(buffer, publicKey); err != nil {
 		return
 	}
 	if key, err = Exchange(buffer); err != nil {

@@ -1,2 +1,2 @@
-ecdsa>=0.13
+donna25519
 pycryptodome>=3.6.6

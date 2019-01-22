@@ -1,6 +1,5 @@
-require 'ecdsa'
-require 'securerandom'
 require 'openssl'
+require 'x25519'
 
 module Confidentiality
   def self.random_bytes(length)
@@ -8,6 +7,7 @@ module Confidentiality
   end
 
   def self.encrypt(message, key)
+    raise "Cipher requires a 128 or 256-bit key, got #{key.length<<3}" unless key.length == 16 or key.length == 32
     nonce = self.random_bytes(GCM_NONCE_SIZE)
     cipher = OpenSSL::Cipher.new(self.message_cipher_for(key))
     cipher.encrypt
@@ -21,6 +21,7 @@ module Confidentiality
   end
 
   def self.decrypt(message, key)
+    raise "Cipher requires a 128 or 256-bit key, got #{key.length<<3}" unless key.length == 16 or key.length == 32
     nonce = message[0..GCM_NONCE_SIZE - 1]
     ciphertext = message[GCM_NONCE_SIZE..message.bytesize - GCM_TAG_SIZE - 1]
     tag = message[message.bytesize - GCM_TAG_SIZE..message.bytesize - 1]
@@ -54,25 +55,21 @@ module Confidentiality
 
   def self.exchange(stream)
     # Generate an emphemeral ECDSA NIST P-256 private key
-    group = OpenSSL::PKey::EC::Group.new('prime256v1')
-    key = OpenSSL::PKey::EC.generate('prime256v1')
+    #group = OpenSSL::PKey::EC::Group.new('prime256v1')
+    #key = OpenSSL::PKey::EC.generate('prime256v1')
+    key = X25519::Scalar.generate
   
     # Write the public part on the wire
-    self.write_ecc_public_key(stream, key.public_key)
+    self.write_public_key(stream, key.public_key)
 
     # Read peer's public key from the wire
-    if RUBY_VERSION < '2.5' then
-      peers_public_key = self.read_ecc_public_key(stream, 'prime256v1')
-    else
-      peers_public_key = self.read_ecc_public_key(stream, group)
-    end
-
+    peers_public_key = self.read_public_key(stream)
+    
     # Compute the scalar product of our private key with peer's
-    shared_point = peers_public_key.mul(key.private_key)
-    shared_point_x = shared_point.to_bn.to_s(16)[2..65]
+    shared_point = key.multiply(peers_public_key)
     
     # Returns as bytes
-    return shared_point_x.scan(/../).map { |x| x.hex }.pack('c*')
+    return shared_point.to_bytes
   end
 
   private 
@@ -96,14 +93,14 @@ module Confidentiality
     raise "Invalid key length #{key.length}"
   end
 
-  def self.read_ecc_public_key(stream, group)
-    chunk = stream.recv(65)
-    raise 'Expected uncompressed ECC point' unless chunk.unpack('C')[0] == 0x04
-    return OpenSSL::PKey::EC::Point.new(group, chunk)
+  def self.read_public_key(stream)
+    chunk = stream.recv(33)
+    ctype = chunk[0].unpack('c').first
+    raise "Peer sent unknown curve type #{ctype.to_s(16)}" unless ctype == 0x19
+    X25519::MontgomeryU.new(chunk[1..32])
   end
 
-  def self.write_ecc_public_key(stream, public_key)
-    #stream.send(ECDSA::Format::PointOctetString.encode(public_key))
-    stream.send(public_key.to_bn.to_s(16).scan(/../).map { |x| x.hex }.pack('c*'))
+  def self.write_public_key(stream, public_key)
+    stream.send("\x19" + public_key.to_bytes)
   end
 end

@@ -38,12 +38,12 @@ function before you use them.
 | [AES-128]    | Block encryption                          |
 | [GCM]        | Message and iv encryption (authenticated) |
 | [CTR]        | Stream encryption                         |
-| [NIST P-256] | Key exchange                              |
+| [Curve25519] | Key exchange                              |
 
 [AES-128]:    https://en.wikipedia.org/wiki/Advanced_Encryption_Standard#Security
 [GCM]:        https://en.wikipedia.org/wiki/Galois/Counter_Mode
 [CTR]:        https://en.wikipedia.org/wiki/Block_cipher_mode_of_operation#Counter_(CTR)
-[NIST P-256]: https://en.wikipedia.org/wiki/Elliptic-curve_cryptography#Security
+[Curve25519]: https://en.wikipedia.org/wiki/Curve25519
 
 ## Backward compatibility
 

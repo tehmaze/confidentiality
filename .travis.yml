@@ -1,6 +1,9 @@
 matrix:
   include:
     - language: go
+      go:
+        - '1.10.x'
+        - '1.11.x'
       before_script:
         - cd go
         - make install-test-deps
@@ -18,7 +21,10 @@ matrix:
 
     - language: python
       python:
-        - 3.4
+        - '3.4'
+        - '3.5'
+        - '3.6'
+        - '3.7'
       before_script:
         - cd python
         - python3 -m pip install --upgrade pip
@@ -28,7 +34,9 @@ matrix:
     
     - language: ruby
       ruby:
-        - 2.5
+        - 2.4.1
+        - 2.5.3
+        - 2.6.0
       before_script:
         - cd ruby
         - make install-test-deps

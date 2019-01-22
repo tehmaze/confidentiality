@@ -4,12 +4,10 @@ import os
 import unittest.mock as mock
 
 from Crypto.Util.number import bytes_to_long, long_to_bytes
-from ecdsa import NIST256p, VerifyingKey, SigningKey
-from ecdsa.ecdsa import Public_key, Private_key
-from ecdsa.ellipticcurve import Point
+import donna25519
 import pytest
 
-from confidentiality import exchange, _write_ecc_public_key
+from confidentiality import exchange, _write_public_key
 
 
 def _exchange(stream, queue):
@@ -48,38 +46,24 @@ class MockStream:
 
 @pytest.mark.parametrize('vector', vectors())
 def test_exchange(vector):
-    r1, d1, x1, y1, r2, d2, x2, y2, wanted = vector
+    _, k1b, p1b, _, k2b, _, wanted = vector
 
+    k1 = donna25519.PrivateKey.load(k1b)
+    k2 = donna25519.PrivateKey.load(k2b)
+    
+    def _mock_private_key(*args, **kwargs):
+        return k2
 
-    def _import(d, x, y):
-        public_key = Public_key(NIST256p.generator, Point(
-            curve=NIST256p.curve,
-            x=bytes_to_long(x),
-            y=bytes_to_long(y),
-        ))
-        private_key = Private_key(public_key, bytes_to_long(d))
-        return private_key
-
-
-    def _mock_signingkey_generate(*args, **kwargs):
-        key = SigningKey(True)
-        key.privkey = _import(d2, x2, y2)
-        key.verifying_key = VerifyingKey.from_public_point(key.privkey.public_key.point, NIST256p)
-        return key
-
-
-    with mock.patch('ecdsa.SigningKey.generate', _mock_signingkey_generate):
-        # Generate ECDSA key and write it to wire format to our stream
-        private_key = _import(d1, x1, y1)
-        public_key = private_key.public_key
-        point = public_key.point
-        assert long_to_bytes(point.x()) == x1
-        assert long_to_bytes(point.y()) == y1
-
+    with mock.patch('donna25519.PrivateKey', _mock_private_key):
+        # Generate key and write it to wire format to our stream
+        private_key = k1
+        public_key = private_key.get_public()
+        assert public_key.public == p1b
+        
         # Write our first public key to the wire
         buffer = io.BytesIO()
-        _write_ecc_public_key(buffer, public_key)
-        assert len(buffer.getvalue()) == 65
+        _write_public_key(buffer, public_key)
+        assert len(buffer.getvalue()) == 33
 
         # Stream contains our wire format key
         stream = MockStream(io.BytesIO(buffer.getvalue()))
