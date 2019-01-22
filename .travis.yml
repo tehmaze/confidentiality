@@ -26,6 +26,8 @@ matrix:
         - make test
     
     - language: ruby
+      ruby:
+        - 2.5
       before_script:
         - cd ruby
         - make install-test-deps
