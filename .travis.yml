@@ -20,17 +20,20 @@ matrix:
         - make test
 
     - language: python
-      include:
-        - python: '3.4'
-        - python: '3.5'
-        - python: '3.6'
-        - python: '3.7'
-      before_script:
-        - cd python
-        - python -m pip install --upgrade pip
-        - make install-test-deps PYTHON=python
+      python:
+        - '3.3'
+        - '3.4'
+        - '3.5'
+        - '3.6'
+        - '3.7'
+      virtualenv:
+        system_site_packages: true
+      install:
+        - pip install --upgrade pip
+        - pip install --upgrade --requirement python/requirements.txt
+        - pip install --upgrade --requirement python/requirements-test.txt
       script:
-        - make test PYTHON=python
+        - make -C python test PYTHON=python
     
     - language: ruby
       rvm:
