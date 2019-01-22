@@ -1,0 +1,4 @@
+source "https://rubygems.org" do
+  gem 'rspec', '~> 3.0'
+  gem 'ecdsa', '~> 1.2.0'
+end
