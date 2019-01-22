@@ -6,4 +6,4 @@ install-test-deps:
 	bundle install
 
 test: install-test-deps
-	./bin/rspec
+	PATH="$$PATH:$(shell pwd)/bin" rspec
