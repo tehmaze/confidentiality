@@ -11,12 +11,12 @@ Portable, secure by default cryptography.
 
 ## Supported languages
 
-| Language       | Version         | Remarks                             |
-| -------------- | --------------- | ----------------------------------- |
-| [Go]()         | `>= 1.10`       |                                     |
-[ [Javascript]() | `node.js >= 11` | Browsers with [WebCrypto]() support |
-| [Python]()     | `>= 3.4`        |                                     |
-| [Ruby]()       | `>= 2.5`        |                                     |
+| Language     | Version         | Remarks                           |
+| ------------ | --------------- | --------------------------------- |
+| [Go]         | `>= 1.10`       |                                   |
+[ [Javascript] | `node.js >= 11` | Browsers with [WebCrypto] support |
+| [Python]     | `>= 3.4`        |                                   |
+| [Ruby]       | `>= 2.5`        |                                   |
 
 [Go]:         go/
 [Javascript]: javascript/
