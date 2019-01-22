@@ -9,6 +9,11 @@
 
 Portable, secure by default cryptography.
 
+**Important**: This library is *not a substitution for well seasoned TLS 
+implementations* and only exists as a supplementary means of offering 
+cryptographic primitives. Make sure you understand the limitations of each
+function before you use them.
+
 ## Supported languages
 
 | Language     | Version         | Remarks                           |
@@ -23,6 +28,20 @@ Portable, secure by default cryptography.
 [Python]:     python/
 [Ruby]:       ruby/
 [WebCrypto]:  https://caniuse.com/#feat=cryptography
+
+## Used algorithms
+
+| Algorithm    | Usage                                     |
+| ------------ | ----------------------------------------- |
+| [AES-128]    | block encryption                          |
+| [GCM]        | message and iv encryption (authenticated) |
+| [CTR]        | stream encryption                         |
+| [NIST P-256] | key exchange                              |
+
+[AES-128]:    https://en.wikipedia.org/wiki/Advanced_Encryption_Standard#Security
+[GCM]:        https://en.wikipedia.org/wiki/Galois/Counter_Mode
+[CTR]:        https://en.wikipedia.org/wiki/Block_cipher_mode_of_operation#Counter_(CTR)
+[NIST P-256]: https://en.wikipedia.org/wiki/Elliptic-curve_cryptography#Security
 
 ## Message authentication
 
@@ -42,8 +61,7 @@ verify(signed message, key) -> [error]
 
 ## Key exchange
 
-Using Elliptive Curve Diffie-Helman (ECDH) key exchanged, based on the NIST P-256
-curve.
+Using Elliptive Curve Diffie-Helman (ECDH) key exchange.
 
 ### Shared key
 
