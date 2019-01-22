@@ -33,10 +33,10 @@ function before you use them.
 
 | Algorithm    | Usage                                     |
 | ------------ | ----------------------------------------- |
-| [AES-128]    | block encryption                          |
-| [GCM]        | message and iv encryption (authenticated) |
-| [CTR]        | stream encryption                         |
-| [NIST P-256] | key exchange                              |
+| [AES-128]    | Block encryption                          |
+| [GCM]        | Message and iv encryption (authenticated) |
+| [CTR]        | Stream encryption                         |
+| [NIST P-256] | Key exchange                              |
 
 [AES-128]:    https://en.wikipedia.org/wiki/Advanced_Encryption_Standard#Security
 [GCM]:        https://en.wikipedia.org/wiki/Galois/Counter_Mode
