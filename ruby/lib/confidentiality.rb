@@ -61,7 +61,11 @@ module Confidentiality
     self.write_ecc_public_key(stream, key.public_key)
 
     # Read peer's public key from the wire
-    peers_public_key = self.read_ecc_public_key(stream, group)
+    if RUBY_VERSION < '2.5' then
+      peers_public_key = self.read_ecc_public_key(stream, 'prime256v1')
+    else
+      peers_public_key = self.read_ecc_public_key(stream, group)
+    end
 
     # Compute the scalar product of our private key with peer's
     shared_point = peers_public_key.mul(key.private_key)
