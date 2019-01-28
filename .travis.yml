@@ -17,24 +17,24 @@ matrix:
     - language: java
       jdk: 'oraclejdk8'
       install:
-        - make -C java install-test-deps
+        - TERM=dumb make -C java install-test-deps
       script:
-        - make -C java test
+        - TERM=dumb make -C java test
 
     - language: java
       jdk: 'oraclejdk9'
       install:
-        - make -C java install-test-deps
+        - TERM=dumb make -C java install-test-deps
       script:
-        - make -C java test
-    
+        - TERM=dumb make -C java test
+
     - language: java
       jdk: 'openjdk8'
       install:
-        - make -C java install-test-deps
+        - TERM=dumb make -C java install-test-deps
       script:
-        - make -C java test
-    
+        - TERM=dumb make -C java test
+
     - language: node_js
       node_js: '11'
       install:
