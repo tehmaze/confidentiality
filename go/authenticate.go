@@ -22,16 +22,19 @@ var (
 	authenticationSize = authenticationHash.Size()
 )
 
-// Sign a message.
-func Sign(dst, message, key []byte) []byte {
+// Signed returns the message with signature.
+func Signed(dst, message, key []byte) []byte {
 	ret, out := sliceForAppend(dst, len(message)+authenticationSize)
+	copy(out, message)
+	copy(out[len(message):], Signature(message, key))
+	return ret
+}
 
+// Signature of a message only.
+func Signature(message, key []byte) []byte {
 	mac := hmac.New(authenticationHash.New, key)
 	mac.Write(message)
-	copy(out, message)
-	copy(out[len(message):], mac.Sum(nil))
-
-	return ret
+	return mac.Sum(nil)
 }
 
 // Verify a signed message.

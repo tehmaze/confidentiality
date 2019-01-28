@@ -3,7 +3,6 @@ package confidentiality
 import (
 	"bytes"
 	"crypto/rand"
-	"encoding/hex"
 	"io"
 	"net"
 	"sync"
@@ -75,22 +74,21 @@ func testExchange(out chan<- []byte, rw io.ReadWriter, wait *sync.WaitGroup) {
 
 func TestExchangeVectors(t *testing.T) {
 	t.Helper()
-	for _, vector := range loadTestVectors(t, "exchange_test.txt", 7) {
-		t.Run("", func(t *testing.T) {
+	for _, vector := range loadTestVectors(t, "exchange-vectors.txt", 7) {
+		t.Run(string(vector["name"]), func(t *testing.T) {
 			testExchangeVectors(t, vector)
 		})
 	}
 }
 
-func testExchangeVectors(t *testing.T, vectors []string) {
+func testExchangeVectors(t *testing.T, vector map[string][]byte) {
 	t.Helper()
 
 	defer func() {
 		randomReader = rand.Reader
 	}()
 
-	randomVector, _ := hex.DecodeString(vectors[0])
-	randomReader = bytes.NewBuffer(randomVector)
+	randomReader = bytes.NewBuffer(vector["random"])
 
 	var (
 		publicKey *[32]byte
@@ -110,9 +108,7 @@ func testExchangeVectors(t *testing.T, vectors []string) {
 		t.Fatalf("expected 256-bit key, got %d-bit", len(key)<<3)
 	}
 
-	wantedKey, _ := hex.DecodeString(vectors[8])
-	if !bytes.Equal(key, wantedKey) {
-		t.Fatalf("expected key %x, got %x", wantedKey, key)
+	if !bytes.Equal(key, vector["sharedSecret"]) {
+		t.Fatalf("expected key %x, got %x", vector["sharedSecret"], key)
 	}
-
 }

@@ -39,7 +39,7 @@ func Encrypt(message, key []byte) ([]byte, error) {
 		return nil, err
 	}
 
-	return aead.Seal(nil, nonce, message, nil), nil
+	return append(nonce, aead.Seal(nil, nonce, message, nil)...), nil
 }
 
 func newGCM(key []byte) (cipher.AEAD, error) {
