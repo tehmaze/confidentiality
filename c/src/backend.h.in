@@ -1,0 +1,87 @@
+#ifndef CONFIDENTIALITY_BACKEND_H
+#define CONFIDENTIALITY_BACKEND_H
+
+#include "confidentiality.h"
+
+/* OpenSSL functions */
+#cmakedefine HAVE_EVP_AES_128_CTR
+#cmakedefine HAVE_EVP_AES_192_CTR
+#cmakedefine HAVE_EVP_AES_256_CTR
+#cmakedefine HAVE_EVP_AES_128_GCM
+#cmakedefine HAVE_EVP_AES_192_GCM
+#cmakedefine HAVE_EVP_AES_256_GCM
+
+#define DIGEST_SIZE 32
+
+/**
+ * Errors.
+ */
+
+CONFIDENTIALITY_INTERNAL
+void error_string(int code, char *buffer, size_t length);
+
+/**
+ * Random.
+ */
+
+CONFIDENTIALITY_INTERNAL
+void random_init(void);
+
+CONFIDENTIALITY_INTERNAL
+int random_read(void *buffer, size_t size);
+
+/**
+ * Message authentication.
+ */
+
+CONFIDENTIALITY_INTERNAL
+int hmac_sha256(
+    uint8_t digest[DIGEST_SIZE],
+    const uint8_t *src, size_t src_size,
+    const uint8_t *key, size_t key_size);
+
+/**
+ * Message encryption.
+ */
+
+#define MESSAGE_NONCE_SIZE 12
+#define MESSAGE_TAG_SIZE 16
+#define MESSAGE_OVERHEAD (MESSAGE_TAG_SIZE)
+
+static inline size_t message_encrypted_size(size_t length)
+{
+    return length + (MESSAGE_NONCE_SIZE + MESSAGE_OVERHEAD);
+}
+
+static inline size_t message_decrypted_size(size_t length)
+{
+    return length - (MESSAGE_NONCE_SIZE + MESSAGE_OVERHEAD);
+}
+
+CONFIDENTIALITY_INTERNAL
+int message_encrypt(
+    uint8_t *dst,
+    uint8_t nonce[MESSAGE_NONCE_SIZE],
+    uint8_t tag[MESSAGE_TAG_SIZE],
+    const uint8_t *src, size_t src_size,
+    const uint8_t *key, size_t key_size);
+
+CONFIDENTIALITY_INTERNAL
+int message_decrypt(
+    uint8_t *dst,
+    const uint8_t nonce[MESSAGE_NONCE_SIZE],
+    const uint8_t tag[MESSAGE_TAG_SIZE],
+    const uint8_t *src, size_t src_size,
+    const uint8_t *key, size_t key_size);
+
+/**
+ * Key exchange.
+ */
+
+CONFIDENTIALITY_INTERNAL
+int derive_key(
+    uint8_t key[32],
+    const uint8_t *password, size_t password_size,
+    unsigned int iter);
+
+#endif

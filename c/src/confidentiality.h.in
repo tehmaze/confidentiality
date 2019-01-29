@@ -1,0 +1,117 @@
+#ifndef CONFIDENTIALITY_H
+#define CONFIDENTIALITY_H
+
+#include <stddef.h>
+#include <unistd.h>
+#include <inttypes.h>
+
+#if defined(__WIN32__)
+#include <io.h>
+#endif
+
+#define CONFIDENTIALITY_VERSION             "@PROJECT_VERSION@"
+#define CONFIDENTIALITY_VERSION_MAJOR       @PROJECT_VERSION_MAJOR@
+#define CONFIDENTIALITY_VERSION_MINOR       @PROJECT_VERSION_MINOR@
+#define CONFIDENTIALITY_VERSION_PATCH       @PROJECT_VERSION_PATCH@
+#define CONFIDENTIALITY_VERSION_NUMBER      @PROJECT_VERSION_NUMBER@UL
+#define CONFIDENTIALITY_BACKEND_@CRYPTO_BACKEND_UPPER@   1
+
+/**
+ * Visibility
+ */
+
+#if defined _WIN32 || defined __CYGWIN__
+    #define CONFIDENTIALITY_EXTERNAL __declspec(dllexport)
+    #define CONFIDENTIALITY_INTERNAL
+#elif __GNUC__ >= 4
+    #define CONFIDENTIALITY_EXTERNAL __attribute__ ((visibility ("default")))
+    #define CONFIDENTIALITY_INTERNAL  __attribute__ ((visibility ("hidden")))
+#else
+    #define CONFIDENTIALITY_EXTERNAL
+    #define CONFIDENTIALITY_INTERNAL
+#endif
+
+/**
+ * Error handling.
+ */
+
+#define CONFIDENTIALITY_ERR_KEY_SIZE  0x0100
+#define CONFIDENTIALITY_ERR_KEY_TYPE  0x0101
+
+CONFIDENTIALITY_EXTERNAL
+void confidentiality_error(int code, char *buffer, size_t length);
+
+/**
+ * Message authentication.
+ */
+
+#define CONFIDENTIALITY_SIGNATURE_LEN       32
+
+CONFIDENTIALITY_EXTERNAL
+int confidentiality_signature(
+    uint8_t signature[CONFIDENTIALITY_SIGNATURE_LEN],
+    const uint8_t *message, size_t message_size,
+    const uint8_t *key, size_t key_size);
+
+CONFIDENTIALITY_EXTERNAL
+int confidentiality_verify(
+    uint8_t signature[CONFIDENTIALITY_SIGNATURE_LEN],
+    const uint8_t *message, size_t message_size,
+    const uint8_t *key, size_t key_size);
+
+/*
+ * Message encryption.
+ */
+
+CONFIDENTIALITY_EXTERNAL
+int confidentiality_encrypt(
+    uint8_t *encrypted,
+    const uint8_t *message, size_t message_size,
+    const uint8_t *key, size_t key_size);
+
+CONFIDENTIALITY_EXTERNAL
+int confidentiality_decrypt(
+    uint8_t *decrypted,
+    const uint8_t *message, size_t message_size,
+    const uint8_t *key, size_t key_size);
+
+#define CONFIDENTIALITY_STREAM_DECRYPTER 0x01
+#define CONFIDENTIALITY_STREAM_ENCRYPTER 0x02
+
+typedef struct {
+    int fd;
+    uint8_t flag;
+    void *context;
+} confidentiality_stream;
+
+CONFIDENTIALITY_EXTERNAL
+confidentiality_stream *confidentiality_secure(int fd);
+
+CONFIDENTIALITY_EXTERNAL
+confidentiality_stream *confidentiality_encrypter(
+    int fd,
+    const uint8_t *key, size_t key_size);
+
+CONFIDENTIALITY_EXTERNAL
+confidentiality_stream *confidentiality_decrypter(
+    int fd,
+    const uint8_t *key, size_t key_size);
+
+CONFIDENTIALITY_EXTERNAL
+ssize_t confidentiality_stream_read(
+    confidentiality_stream *stream,
+    uint8_t *buffer, size_t nbytes);
+
+CONFIDENTIALITY_EXTERNAL
+ssize_t confidentiality_stream_write(
+    confidentiality_stream *stream,
+    const uint8_t *buffer, size_t nbytes);
+
+/*
+ * Key exchange.
+ */
+
+CONFIDENTIALITY_EXTERNAL
+int confidentiality_exchange(int fd, uint8_t sharedSecret[32]);
+
+#endif
