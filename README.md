@@ -39,16 +39,18 @@ function before you use them.
 
 | Algorithm           | Usage                                     |
 | ------------------- | ----------------------------------------- |
+| [HMAC-SHA256]       | Message authentication                    |
 | [AES]               | Block encryption                          |
 | [AES-GCM]           | Message and iv encryption (authenticated) |
 | [AES-GCM]+[AES-CTR] | Stream encryption                         |
 | [X25519]+[PBKDF2]   | Key exchange (KEX)                        |
 
-[AES]:     https://en.wikipedia.org/wiki/Advanced_Encryption_Standard#Security
-[AES-GCM]: https://en.wikipedia.org/wiki/Galois/Counter_Mode
-[AES-CTR]: https://en.wikipedia.org/wiki/Block_cipher_mode_of_operation#Counter_(CTR)
-[X25519]:  https://en.wikipedia.org/wiki/Curve25519
-[PBKDF2]:  https://en.wikipedia.org/wiki/PBKDF2
+[HMAC-SHA256]: https://en.wikipedia.org/wiki/HMAC
+[AES]:         https://en.wikipedia.org/wiki/Advanced_Encryption_Standard#Security
+[AES-GCM]:     https://en.wikipedia.org/wiki/Galois/Counter_Mode
+[AES-CTR]:     https://en.wikipedia.org/wiki/Block_cipher_mode_of_operation#Counter_(CTR)
+[X25519]:      https://en.wikipedia.org/wiki/Curve25519
+[PBKDF2]:      https://en.wikipedia.org/wiki/PBKDF2
 
 ## Backward compatibility
 
