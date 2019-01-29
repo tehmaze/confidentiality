@@ -20,11 +20,15 @@ function before you use them.
 
 | Language     | Version         | Remarks                           |
 | ------------ | --------------- | --------------------------------- |
+| [C]          | `gcc`, `clang`  | Requires `c99` capable compiler and [mbedTLS] `>=2.1.0` or [OpenSSL] `>=1.0.0` |
 | [Go]         | `>= 1.10`       |                                   |
-[ [Javascript] | `node.js >= 11` | Browsers with [WebCrypto] support |
+| [Javascript] | `node.js >= 11` | Browsers with [WebCrypto] support |
 | [Python]     | `>= 3.4`        |                                   |
 | [Ruby]       | `>= 2.5`        |                                   |
 
+[C]:          c/
+[mbedTLS]:    https://tls.mbed.org
+[OpenSSL]:    https://www.openssl.org
 [Go]:         go/
 [Javascript]: javascript/
 [Python]:     python/
@@ -33,17 +37,18 @@ function before you use them.
 
 ## Used algorithms
 
-| Algorithm    | Usage                                     |
-| ------------ | ----------------------------------------- |
-| [AES-128]    | Block encryption                          |
-| [GCM]        | Message and iv encryption (authenticated) |
-| [CTR]        | Stream encryption                         |
-| [Curve25519] | Key exchange                              |
+| Algorithm           | Usage                                     |
+| ------------------- | ----------------------------------------- |
+| [AES]               | Block encryption                          |
+| [AES-GCM]           | Message and iv encryption (authenticated) |
+| [AES-GCM]+[AES-CTR] | Stream encryption                         |
+| [X25519]+[PBKDF2]   | Key exchange (KEX)                        |
 
-[AES-128]:    https://en.wikipedia.org/wiki/Advanced_Encryption_Standard#Security
-[GCM]:        https://en.wikipedia.org/wiki/Galois/Counter_Mode
-[CTR]:        https://en.wikipedia.org/wiki/Block_cipher_mode_of_operation#Counter_(CTR)
-[Curve25519]: https://en.wikipedia.org/wiki/Curve25519
+[AES]:     https://en.wikipedia.org/wiki/Advanced_Encryption_Standard#Security
+[AES-GCM]: https://en.wikipedia.org/wiki/Galois/Counter_Mode
+[AES-CTR]: https://en.wikipedia.org/wiki/Block_cipher_mode_of_operation#Counter_(CTR)
+[X25519]:  https://en.wikipedia.org/wiki/Curve25519
+[PBKDF2]:  https://en.wikipedia.org/wiki/PBKDF2
 
 ## Backward compatibility
 
