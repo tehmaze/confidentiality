@@ -20,7 +20,7 @@ function before you use them.
 
 | Language     | Version         | Remarks                           |
 | ------------ | --------------- | --------------------------------- |
-| [C]          | `gcc`, `clang`  | Requires `c99` capable compiler and [mbedTLS] `>=2.1.0` or [OpenSSL] `>=1.0.0` |
+| [C]          | `c99`           | Requires [mbedTLS] `>= 2.1.0` or [OpenSSL] `>= 1.0.0` |
 | [Go]         | `>= 1.10`       |                                   |
 | [Javascript] | `node.js >= 11` | Browsers with [WebCrypto] support |
 | [Python]     | `>= 3.4`        |                                   |
